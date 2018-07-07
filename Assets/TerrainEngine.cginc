@@ -25,6 +25,11 @@ CBUFFER_START(UnityTerrain)
     float4 _TreeBillboardCameraFront;
     float4 _TreeBillboardCameraPos;
     float4 _TreeBillboardDistances; // x = max distance ^ 2
+
+	float3 _Player1Pos;
+	float3 _Player2Pos;
+	float3 _Player3Pos;
+
 CBUFFER_END
 
 
@@ -109,7 +114,15 @@ fixed4 TerrainWaveGrass (inout float4 vertex, float waveAmount, fixed4 color)
     waveMove.x = dot (s, _waveXmove);
     waveMove.z = dot (s, _waveZmove);
 
-    vertex.xz -= waveMove.xz * _WaveAndDistance.z;
+	vertex.xz -= waveMove.xz * _WaveAndDistance.z;
+
+	float d1 = distance(vertex.xyz, _Player1Pos);
+	float d2 = distance(vertex.xyz, _Player2Pos);
+	float d3 = distance(vertex.xyz, _Player3Pos);
+	if (d1 < 1)
+	{
+		vertex.xz += color.r * (vertex.xz - _Player1Pos.xz) * ( 1 - d1 );
+	} 
 
     // apply color animation
 
@@ -146,7 +159,7 @@ void WavingGrassVert (inout appdata_full v)
     // _WaveAndDistance.z == 0 for MeshLit
 	float waveAmount = v.color.r *_WaveAndDistance.z;
 
-    v.color = TerrainWaveGrass (v.vertex, waveAmount, v.color);
+	v.color = TerrainWaveGrass(v.vertex, waveAmount, v.color);
 }
 
 void WavingGrassBillboardVert (inout appdata_full v)
